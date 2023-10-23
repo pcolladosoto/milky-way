@@ -1,0 +1,18 @@
+# Ignore hidden files except the .gitignore
+.*
+!.gitignore
+
+# Ignore virtual environments
+*env
+
+# Ignore precompiled bytecode
+*.pyc
+
+# Ignore JSON configuration files
+*.json
+
+# Ignore dummy files
+foo*
+
+# Ignore built artifacts
+build*
