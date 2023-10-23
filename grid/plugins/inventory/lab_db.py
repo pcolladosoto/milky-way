@@ -27,7 +27,7 @@ DOCUMENTATION = r'''
           required: True
           type: string
           choices:
-            - lab_db
+            - pcolladosoto.grid.lab_db
       uri:
         description: MongoDB instance URI.
         required: True
