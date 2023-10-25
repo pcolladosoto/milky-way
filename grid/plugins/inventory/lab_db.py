@@ -108,7 +108,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             for machine in machineData:
                 if not machine.get("active", True):
                     for i, group in enumerate(groupsData):
-                        
                         groupsData[i]["members"] = list(filter(
                             lambda item: item["hostname"] != machine["hostname"], group["members"]
                         ))
