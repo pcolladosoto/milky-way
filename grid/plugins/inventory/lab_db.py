@@ -142,8 +142,6 @@ def getMongoData(uri: str, db: str, machineCollectionName: str, groupsCollection
     groupsCollection  = mongoClient[db][groupsCollectionName]
 
     groups = list(groupsCollection.find({}, {'_id': False}))
-    if len(groups) == 0:
-        raise ValueError("the group collection is empty")
     
     machines = list(machineCollection.find({}, {'_id': False}))
     if len(machines) == 0:
