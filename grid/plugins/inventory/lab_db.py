@@ -21,38 +21,45 @@ DOCUMENTATION = r'''
       to then generate a dynamic inventory.
     options:
       plugin:
-          description:
-            - Name of the plugin. This allows us to automatically load this plugin through
-            - Ansible's builtin `auto` plugin.
-          required: True
+          description: >
+            Name of the plugin. This allows us to automatically load this plugin
+            through Ansible's builtin `auto` plugin.
+          required: true
           type: string
           choices:
             - pcolladosoto.grid.lab_db
       uri:
         description: MongoDB instance URI.
-        required: True
+        required: true
         type: string
         default: mongodb://some.place:some.port
       domain:
         description: The domain to append to the hostnames enabling DNS lookups.
-        required: True
+        required: true
         type: string
         default: .foo.fee.fii
       db:
         description: MongoDB database containing the data to build the inventory with.
-        required: True
+        required: true
         type: string
         default: some-db
       machine_collection:
         description: MongoDB collection containing the data describing the physical machines.
-        required: True
+        required: true
         type: string
         default: machine-collection
       management_collection:
         description: MongoDB collection containing the different management groups.
-        required: True
+        required: true
         type: string
         default: group-collection
+      deny_list:
+        description: >
+          List of hostnames to avoid acting on. The domain name shouldn't be included.
+        required: false
+        type: list
+        elements: string
+        default: []
 '''
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
@@ -99,6 +106,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
             domain = self.get_option("domain")
 
+            denyList = self.get_option("deny_list")
+
             groupsData, machineData = getMongoData(
                 self.get_option("uri"), self.get_option("db"),
                 self.get_option("machine_collection"),
@@ -106,12 +115,16 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             )
 
             for machine in machineData:
+                if machine['hostname'] in denyList:
+                    continue
+
                 if not machine.get("active", True):
                     for i, group in enumerate(groupsData):
                         groupsData[i]["members"] = list(filter(
                             lambda item: item["hostname"] != machine["hostname"], group["members"]
                         ))
                     continue
+
                 hostname = f"{machine['hostname']}{domain}"
                 self.inventory.add_host(hostname)
                 for k, v in machine.items():
@@ -122,6 +135,9 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 groupName = group["name"]
                 self.inventory.add_group(groupName)
                 for groupMember in group["members"]:
+                    if groupMember['hostname'] in denyList:
+                        continue
+
                     self.inventory.add_child(groupName, f"{groupMember['hostname']}{domain}")
 
         except KeyError as kerr:
@@ -130,7 +146,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             raise AnsibleParserError(f"error contacting the MongoDB instance: {cerr}")
         except ValueError as verr:
             raise AnsibleParserError(f"error gathering data: {verr}")
-    
+
 def getMongoData(uri: str, db: str, machineCollectionName: str, groupsCollectionName: str, debug: bool = False) -> tuple[list, list]:
     mongoClient = pymongo.MongoClient(uri, serverSelectionTimeoutMS = 2000)
     try:
@@ -141,7 +157,7 @@ def getMongoData(uri: str, db: str, machineCollectionName: str, groupsCollection
     groupsCollection  = mongoClient[db][groupsCollectionName]
 
     groups = list(groupsCollection.find({}, {'_id': False}))
-    
+
     machines = list(machineCollection.find({}, {'_id': False}))
     if len(machines) == 0:
         raise ValueError("the machine collection is empty")
