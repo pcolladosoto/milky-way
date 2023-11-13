@@ -12,6 +12,8 @@ from bson import json_util
 from ansible.errors import AnsibleParserError
 from ansible.plugins.inventory import BaseInventoryPlugin, Cacheable, Constructable
 
+# Documentation on the different fields can be found at:
+#   https://docs.ansible.com/ansible/latest/dev_guide/developing_modules_documenting.html#documentation-fields
 DOCUMENTATION = r'''
     name: pcolladosoto.grid.lab_db
     plugin_type: inventory
