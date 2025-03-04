@@ -5,7 +5,7 @@
 NAMESPACE := $(strip $(subst namespace:,,$(shell grep namespace: galaxy.yml)))
 NAME := $(strip $(subst name:,,$(shell grep name: galaxy.yml)))
 VERSION := $(strip $(subst version:,,$(shell grep version: galaxy.yml)))
-PYTHON := /usr/local/bin/python3
+PYTHON := /usr/bin/python3
 UPDATE := --force
 AG_TOKEN := $(shell cat .galaxy-token)
 
@@ -33,7 +33,7 @@ build:
 	@ansible-galaxy collection build --output-path builds $(UPDATE) .
 
 install: build
-	ansible-galaxy collection install $(UPDATE) builds/$(NAMESPACE)-$(NAME)-$(VERSION).tar.gz
+	ansible-galaxy collection install $(UPDATE) builds/$(NAMESPACE)-$(NAME)-$(VERSION).tar.gz --force
 
 publish: build
 	ansible-galaxy collection publish \

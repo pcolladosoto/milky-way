@@ -16,3 +16,6 @@ foo*
 
 # Ignore built artifacts
 build*
+
+# Ignore sample configuration YML files
+lab_*.yml
