@@ -20,7 +20,8 @@ DOCUMENTATION = r'''
     short_description: Returns a dynamic host inventory from data in a MongoDB instance
     description: >
       Parses purposefully formatted machine information present on a MongoDB instance
-      to then generate a dynamic inventory.
+      to then generate a dynamic inventory. Please note you MUST have pymongo installed
+      (i.e. through pip) for this inventory plugin to work.
     options:
       plugin:
           description: >

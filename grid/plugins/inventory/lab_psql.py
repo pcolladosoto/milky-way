@@ -18,7 +18,8 @@ DOCUMENTATION = r'''
     short_description: Returns a dynamic host inventory from data in a PostgreSQL instance
     description: >
       Parses purposefully formatted machine information present on a PostgreSQL instance
-      to then generate a dynamic inventory.
+      to then generate a dynamic inventory. Please note you MUST have psycopg2 installed
+      (i.e. through pip) for this inventory plugin to work.
     options:
       plugin:
           description: >
